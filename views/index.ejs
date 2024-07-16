@@ -21,6 +21,8 @@
             padding: 2rem;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 500px;
         }
 
         h1 {
@@ -47,6 +49,7 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            margin-bottom: 0.5rem;
         }
 
         button:hover {
@@ -56,6 +59,68 @@
         #result {
             margin-top: 1rem;
             text-align: center;
+        }
+
+        #shortenedUrl {
+            word-break: break-all;
+            margin-bottom: 0.5rem;
+        }
+
+        #result {
+            margin-top: 2rem;
+            text-align: left;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        #result h2 {
+            color: #007bff;
+            margin-top: 0;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .data-item {
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            background-color: white;
+            border-radius: 4px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .data-label {
+            font-weight: bold;
+            color: #495057;
+            display: inline-block;
+            width: 120px;
+            margin-right: 0.5rem;
+        }
+
+        #shortenedUrl {
+            word-break: break-all;
+            color: #28a745;
+        }
+
+        #shortenedUrl a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        #shortenedUrl a:hover {
+            text-decoration: underline;
+        }
+
+        #copyButton {
+            margin-left: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+            background-color: #6c757d;
+        }
+
+        #copyButton:hover {
+            background-color: #5a6268;
         }
     </style>
 </head>
@@ -69,12 +134,70 @@
         </form>
         <div id="result">
             <% if (typeof url1 !=='undefined' ) { %>
-                Shortened URL: <%= url1 %>
-                    <% } %>
+                <p>Shortened URL:</p>
+                <p id="shortenedUrl"><a href="<%= url1 %>" target="_blank">
+                        <%= url1 %>
+                    </a></p>
+                <button id="copyButton">Copy URL</button>
+                <% } %>
+                    <% if (typeof urlData !=='undefined' ) { %>
+                        <h2>Shortened URL Details:</h2>
+                        <div class="data-item">
+                            <span class="data-label">ID:</span>
+                            <%= urlData._id %>
+                        </div>
+                        <div class="data-item">
+                            <span class="data-label">Original URL:</span>
+                            <%= urlData.originalUrl %>
+                        </div>
+                        <div class="data-item">
+                            <span class="data-label">Short URL:</span>
+                            <span id="shortenedUrl"><a href="<%= baseurl2 %>" target="_blank">
+                                    <%= urlData.shortUrl %>
+                                </a></span>
+                            <button id="copyButton">Copy Short URL</button>
+                        </div>
+                        <div class="data-item">
+                            <span class="data-label">Created Date:</span>
+                            <%= urlData.date %>
+                        </div>
+                        <div class="data-item">
+                            <span class="data-label">Version:</span>
+                            <%= urlData.__v %>
+                        </div>
+                        <% } %>
         </div>
     </div>
 
     <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const copyButton = document.getElementById('copyButton');
+            const shortenedUrl = document.getElementById('shortenedUrl');
+
+            if (copyButton && shortenedUrl) {
+                copyButton.addEventListener('click', function () {
+                    // Select the <a> tag inside the <span> with the ID 'shortenedUrl'
+                    const anchor = document.querySelector('#shortenedUrl a');
+                    if (anchor) {
+                        const hrefValue = anchor.getAttribute('href'); // Get the 'href' attribute of the <a> tag
+                        if (hrefValue) {
+                            navigator.clipboard.writeText(hrefValue).then(function () {
+                                copyButton.textContent = 'Copied!';
+                                setTimeout(function () {
+                                    copyButton.textContent = 'Copy URL';
+                                }, 2000);
+                            }).catch(function (err) {
+                                console.error('Failed to copy text: ', err);
+                            });
+                        } else {
+                            console.error('No URL found to copy.');
+                        }
+                    } else {
+                        console.error('Anchor tag not found.');
+                    }
+                });
+            }
+        });
     </script>
 </body>
 

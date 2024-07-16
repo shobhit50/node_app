@@ -2,14 +2,14 @@ const express = require('express');
 const app = express();
 const path = require('path');
 const PORT = 3000;
-
-const shortId = require('shortid');
-const validUrl = require('valid-url');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-
-const mongoose = require('mongoose');
 require('./models/config');
+
+// const shortId = require('shortid');
+// const validUrl = require('valid-url');
+// const bcrypt = require('bcrypt');
+// const jwt = require('jsonwebtoken');
+
+// const mongoose = require('mongoose');
 // const User = require('./models/urlSchema');
 
 const cookieParser = require('cookie-parser');
@@ -26,6 +26,16 @@ app.get('/', (req, res) => {
 
 app.use('/', require('./routes/url'));
 app.use('/user', require('./routes/user'));
+
+
+
+app.use((err, req, res, next) => {
+    const statusCode = err.statusCode || 500;
+    res.status(statusCode).render('error', {
+        message: err.message,
+        error: err
+    });
+});
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

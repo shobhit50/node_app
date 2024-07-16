@@ -6,7 +6,7 @@ const shortId = require('shortid');
 const Url = require('../models/urlSchema');
 const router = express.Router();
 
-router.post('/shorten', async (req, res) => {
+router.post('/shorten', async (req, res, next) => {
     const { originalUrl } = req.body;
     const baseUrl = 'http://localhost:3000';
 
@@ -17,12 +17,14 @@ router.post('/shorten', async (req, res) => {
     }
     if (validUrl.isUri(originalUrl)) {
         try {
-            let url = await Url.findOne({ originalUrl, user: req.userId });
-            if (url) {
-                res.json(url);
+            let urlData = await Url.findOne({ originalUrl, user: req.userId });
+            if (urlData) {
+                const baseurl2 = baseUrl + '/' + urlData.shortUrl;
+                res.render('index', { urlData, baseurl2 });
             } else {
                 // Generate a base64 encoded string as shortUrl
                 const shortUrl = shortId.generate();
+                console.log('Generated short URL:', shortUrl);
                 // const shortUrl = crypto.randomBytes(6).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
                 url = new Url({
                     originalUrl,
@@ -36,11 +38,14 @@ router.post('/shorten', async (req, res) => {
                 res.render('index', { url1 });
             }
         } catch (err) {
-            console.error(err);
-            res.status(500).json('Server error');
+            const error = new Error('Server error');
+            error.status = 500;
+            next(err);
         }
     } else {
-        res.status(401).json('Invalid original URL');
+        const error = new Error('Invalid original URL');
+        error.status = 400;
+        next(error);
     }
 });
 
@@ -50,11 +55,14 @@ router.get('/:shortUrl', async (req, res) => {
         if (url) {
             return res.redirect(url.originalUrl);
         } else {
-            return res.status(404).json('No URL found');
+            const error = new Error('Invalid original URL');
+            error.status = 400;
+            next(error);
         }
     } catch (err) {
-        console.error(err);
-        res.status(500).json('Server error');
+        const error = new Error('Server error');
+        error.status = 500;
+        next(err);
     }
 });
 
