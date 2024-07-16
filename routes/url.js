@@ -49,7 +49,7 @@ router.post('/shorten', async (req, res, next) => {
     }
 });
 
-router.get('/:shortUrl', async (req, res) => {
+router.get('/:shortUrl', async (req, res, next) => {
     try {
         const url = await Url.findOne({ shortUrl: req.params.shortUrl });
         if (url) {
