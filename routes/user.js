@@ -11,8 +11,6 @@ const verifyToken = require('../middelware');
 
 
 
-
-// User registration endpoint
 router.post('/register', async (req, res) => {
     const { email, password } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -26,7 +24,6 @@ router.post('/register', async (req, res) => {
     }
 });
 
-// User login endpoint
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
